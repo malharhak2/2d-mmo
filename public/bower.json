@@ -1,0 +1,12 @@
+{
+	"name": "MMO",
+	"version": "0.0.1",
+	"dependencies": {
+		"jquery": "1.9",
+		"underscore": null,
+		"requirejs": null,
+		"requirejs-domready": null,
+		"modernizr": null,
+		"bootstrap" : null
+	}
+}

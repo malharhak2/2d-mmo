@@ -1,0 +1,11 @@
+extends layout
+
+block headers
+	script(type="text/javascript", src="/libs/requirejs/require.js", data-main="/js/main.js")
+
+block content
+	div#game
+		div#canvas
+			canvas#background
+			canvas#entities
+			canvas#foreground  
