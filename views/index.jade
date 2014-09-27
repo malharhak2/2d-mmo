@@ -4,7 +4,18 @@ block headers
 	script(type="text/javascript", src="/libs/requirejs/require.js", data-main="/js/main.js")
 
 block content
-	div#game
+	div#page
+		div#login.invisible
+			h2 Connect your character
+			p#characName
+			br
+			button.btn#playBtn Play
+		div#signup
+			h2 Choose a cool nickname!
+			input(type="text", name="nickname", id="nickname")
+			br
+			button.btn#validNickname Creer
+	div#game.invisible
 		div#canvas
 			canvas(width=900, height=600)#background
 			canvas(width=900, height=600)#entities
