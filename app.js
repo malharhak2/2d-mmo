@@ -64,5 +64,7 @@ var io = require('socket.io')(server);
 var socketsManager = require('./srv/network/socketsManager.js');
 socketsManager.init(server);
 
-require('./srv/entities/enComp.js');
+
+require('./srv/srvInit.js');
+
 module.exports = app;

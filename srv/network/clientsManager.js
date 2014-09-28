@@ -5,11 +5,12 @@ var ClientsManager = function () {
 };
 
 ClientsManager.prototype.addClient = function (infos) {
+	var token;
 	if (!infos.token) {
-		var token = this.guid();
+		token = this.guid();
 		infos.token = token;
 	} else {
-		var token = infos.token;
+		token = infos.token;
 	}
 	this.clients[token] = new Client(infos);
 	return this.clients[token];

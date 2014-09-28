@@ -18,7 +18,7 @@ define (['socket.io'], function (io) {
 		});
 	};
 	Socket.prototype.emit = function (msg, value) {
-		if (value == undefined) {
+		if (value === undefined) {
 			value = {};
 		}
 		value.token = this.token;
@@ -38,7 +38,7 @@ define (['socket.io'], function (io) {
 			console.log("registered");
 			callback(msg.token, msg.nickname);
 		});
-	}
+	};
 
 	return new Socket();
 });

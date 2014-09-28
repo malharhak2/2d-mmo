@@ -5,9 +5,8 @@ body {
   background-color : black;
 }
 
-#canvas, #background, #foreground {
+#background, #foreground {
 	@include user-select(none);
-	opacity : 0;
 }
 #page {
 	position : absolute;

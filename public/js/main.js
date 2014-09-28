@@ -16,8 +16,9 @@ requirejs.config ({
 	urlArgs : "d=" + Date.now()
 });
 
-require(['gameInit'], function (gameInit) {
+require(['gameInit', 'gameloop'], function (gameInit, gameloop) {
 	gameInit( function () {
 		console.log("Game launched!");
+		gameloop();
 	});
 });

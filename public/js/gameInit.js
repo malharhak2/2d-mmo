@@ -1,16 +1,18 @@
-define(['socket', 'jquery', 'entities/enComp'], function (socket, $, enComp) {
+define(['socket', 'jquery', 'entities/enComp', "inputs/inputs"], 
+	function (socket, $, enComp, inputs) {
 	
 	var gameInit = function (callback) {
 		var token = localStorage.getItem('token');
 		var nickname = localStorage.getItem('nickname');
 		var cb = function () {
 			getEntities (callback);
-		}
+		};
 		if (token !== null) {
 			login(nickname, token, cb);
 		} else {
 			signup(cb);
 		}
+		inputs.init($('#game'));
 	};
 
 	function getEntities (callback) {

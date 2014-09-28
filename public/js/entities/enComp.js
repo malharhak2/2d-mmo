@@ -1,5 +1,5 @@
-define(["entities/entities", "components/Renderer"], 
-	function (entities, Renderer) {
+define(["entities/entities", "components/Renderer", "components/Player", "components/Rigidbody"], 
+	function (entities, Renderer, Player, Rigidbody) {
 
 	var enComp = {
 		components: {}
@@ -17,9 +17,15 @@ define(["entities/entities", "components/Renderer"],
 	};
 	enComp.createComponent = function (name, values) {
 		var component = new this.components[name](values);
-		this[name].addComponent (component, values.id);
+		this[name].addComponent (component);
 		return component;
 	};
+	enComp.loadComponent = function (name, values) {
+		var component = new this.components[name](values);
+		this[name].loadComponent(component, values.id);
+		return component;
+	};
+
 	enComp.destroyComponent = function (name, id) {
 		var component = this[name].comps[id];
 		if (component.entity !== undefined) {
@@ -36,12 +42,16 @@ define(["entities/entities", "components/Renderer"],
 		delete entity.components[component.name];
 	};
 
-	ComponentStorage.prototype.addComponent = function (component, id) {
-		component.id = id
+	ComponentStorage.prototype.loadComponent = function (component, id) {
+		component.id = id;
 		this.comps[id] = component;
 		this.idCounter++;
 	};
-
+	ComponentStorage.prototype.addComponent = function (component) {
+		component.id = this.idCounter;
+		this.comps[this.idCounter] = component;
+		this.idCounter++;
+	};
 	ComponentStorage.prototype.deleteComponent = function (id)  {
 		delete this.comps[id];
 		// TODO : Detacher le component avant de l'effacer
@@ -50,16 +60,38 @@ define(["entities/entities", "components/Renderer"],
 	enComp.receiveEntities = function (entitiesList) {
 		for (var i = 0; i < entitiesList.length; i++) {
 			var d = entitiesList[i];
-			var entity = entities.createEntity (d.position, d.id);
+			var entity = entities.loadEntity (d.position, d.id);
 			for (var j in d.components) {
-				var comp = enComp.createComponent(j, d.components[j]);
+				var comp = enComp.loadComponent(j, d.components[j]);
 				enComp.attachComponent(comp, entity);
 			}
 		}
-	}
+		console.log(entities.list, this);
+	};
+	enComp.extractList = function () {
+		var list = [];
+		for (var i in entities.list) {
+			var e = entities.list[i];
+			var val = {
+				id : e.id,
+				position : e.position,
+				components : {}
+			};
+			for (var j in e.components) {
+				console.log(j);
+				val.components[j] = this[j].comps[e.components[j]];
+			}
+			list.push(val);
+		}
+		console.log("Extract list");
+		console.log(list);
+		return list;
+	};
 
 
 	enComp.registerComponent('renderer', Renderer);
+	enComp.registerComponent('player', Player);
+	enComp.registerComponent('rigidbody', Rigidbody);
 
 	return enComp;
 });

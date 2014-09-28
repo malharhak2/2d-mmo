@@ -22,8 +22,6 @@ var db = require('../db/db.js');
 		    		nickname : nickname
 		    	});
 		    	console.log(client.nickname + " connecting");
-		    	console.log(token, nickname);
-		    	console.log(client);
 		    	socket.emit('logged', {
 		    		token : client.token,
 		    		nickname : client.nickname
@@ -45,12 +43,16 @@ var db = require('../db/db.js');
 		    });
 		    for (var i = 0; i < self.ons.length; i++) {
 		    	var o = self.ons[i];
-		    	socket.on(o.msg, function (value) {
-		    		o.callback (value, socket);
-		    	});
+		    	socket.on(o.msg, self.createOn(o, socket));
 		    }
 		});
 	};
+
+SocketsManager.prototype.createOn = function (o, socket) {
+	return function (value) {
+		o.callback(value, socket);
+	};
+};
 
 SocketsManager.prototype.addOn = function (msg, callback) {
 	this.ons.push ({
