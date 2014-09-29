@@ -41,6 +41,11 @@ var db = require('../db/db.js');
 		    		nickname : client.nickname
 		    	});
 		    });
+		    socket.on('playerCommand', function (msg) {
+		    	var client = clientsManager.clients[msg.token];
+		    	client.inputs.push (msg.command);
+		    });
+		    
 		    for (var i = 0; i < self.ons.length; i++) {
 		    	var o = self.ons[i];
 		    	socket.on(o.msg, self.createOn(o, socket));
@@ -60,4 +65,9 @@ SocketsManager.prototype.addOn = function (msg, callback) {
 		callback : callback
 	});
 };
+
+SocketsManager.prototype.emitGlobal = function (evt, msg) {
+	this.io.sockets.emit(evt, msg);
+};
+
 module.exports = new SocketsManager();

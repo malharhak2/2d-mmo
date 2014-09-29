@@ -33,6 +33,7 @@ define ([], function () {
 			y : v1.y * scl
 		};
 	};
+
 	Vector2.prototype.scale = function (scl) {
 		return new Vector2(
 			this.x * scl,
@@ -48,10 +49,10 @@ define ([], function () {
 	};
 	Vector2.normalize = function (v) {
 		var l = Vector2.length(v);
-		return new Vector2(
-			v.x / length,
-			v.y / length
-		);
+		return {
+			x: v.x / l,
+			y: v.y / l
+		};
 	};
 	
 	Vector2.prototype.normalize = function () {

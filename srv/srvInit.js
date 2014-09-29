@@ -52,3 +52,9 @@ requirejs(['entities/enComp', 'entities/entities'],
 	}
 });
 
+var physicsLoop = require('./physicsLoop.js');
+function createLoop () {
+	setInterval(timeLoop, 4);
+	setInterval(physicsLoop, 45);
+}
+

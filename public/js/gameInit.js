@@ -1,5 +1,5 @@
-define(['socket', 'jquery', 'entities/enComp', "inputs/inputs"], 
-	function (socket, $, enComp, inputs) {
+define(['socket', 'jquery', 'entities/enComp', "inputs/inputs", "gameSession"], 
+	function (socket, $, enComp, inputs, gameSession) {
 	
 	var gameInit = function (callback) {
 		var token = localStorage.getItem('token');
@@ -29,6 +29,7 @@ define(['socket', 'jquery', 'entities/enComp', "inputs/inputs"],
 			socket.register(nickname, function (token, nickname) {
 				localStorage.setItem('token', token);
 				localStorage.setItem('nickname', nickname);
+				gameSession.init(token, nickname);
 				showGame();
 				callback();
 			});
@@ -46,6 +47,7 @@ define(['socket', 'jquery', 'entities/enComp', "inputs/inputs"],
 				console.log("saving token " + token);
 				localStorage.setItem('token', token);
 				localStorage.setItem('nickname', nickname);
+				gameSession.init(token, nickname);
 				showGame();
 				callback();
 			});

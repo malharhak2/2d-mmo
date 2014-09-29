@@ -1,25 +1,41 @@
-define (["systems/systems", "entities/enComp", "entities/entities", "physics/physics", "time", "inputs/inputs"], 
-	function (systems, enComp, entities, physics, time, inputs) {
+define (["animFrame", "systems/systems", "entities/enComp", "entities/entities", 
+	"physics/physics", "time", "inputs/inputs", "socket"], 
+	function (animFrame, systems, enComp, entities, 
+		physics, time, inputs, socket) {
 	var launch = function () {
-		inputLoop();
+		timeLoop();
 		loop();
+		socket.on('serverUpdate', function ())
 	};
 
 	var loop = function () {
+		preInputs();
 		preUpdate();
 		update();
 		postUpdate();
+		postInputs();
 		preRender();
 		render();
 		window.requestAnimationFrame(loop);
 	};
 	var inputLoop = function () {
-		processInputs();
 		setTimeout(inputLoop, 1000 / 20);
 	};
+	var timeLoop = function () {
+		time._dt = new Date.getTime();
+		time._dte = new Date.getTime();
+		time.localTime = 0.016;
+		setInterval(function () {
+			time._dt = new Date.getTime() - time._dte;
+			time._dte = new Date().getTime();
+			time.localTime += time._dt / 1000.0;
+		}, 4);
+	};
 
-	var processInputs = function () {
-		inputs.update(enComp, entities);
+	var preInputs = function () {
+		inputs.update(enComp, entities);	
+	};
+	var postInputs = function () {
 		inputs.postUpdate();
 	};
 

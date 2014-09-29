@@ -17,7 +17,7 @@ define(["time", "classes/Vector2"], function (time, Vector2) {
 			if (r.netType == side) {
 				r.position = r.prevPosition;
 				r.speed = r.prevSpeed;
-				this.execute(r, entities.list[r.entity], time.inputDeltaTime);
+				this.execute(r, entities.list[r.entity], 0.015);
 				r.prevPosition = r.position;
 				r.prevSpeed = r.speed;
 			}

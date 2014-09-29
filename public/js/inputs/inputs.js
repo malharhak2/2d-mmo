@@ -1,12 +1,23 @@
-define (["Mouse", "buttons"], 
-function (Mouse, buttons) {
+define (["Mouse", "buttons", "time", "gameSession", "socket"], 
+function (Mouse, buttons, time, gameSession, socket) {
 
 	var Inputs = function () {
 		this.buttons = {};
-
+		this.inputSeq = 0;
 		for (var i in buttons) {
 			this.buttons[i] = new Button(buttons[i]);
 		}
+		this.commands = [];
+	};
+
+	Inputs.prototype.createCommand = function () {
+		var command = {
+			buttons : this.buttons,
+			time : time.localTime,
+			seq: ++this.inputSeq
+		};
+		this.commands.push(command);
+		return command;
 	};
 
 	Inputs.prototype.reset = function () {
@@ -14,7 +25,14 @@ function (Mouse, buttons) {
 
 	Inputs.prototype.update = function () {
 		for (var i in enComp.player.comps) {
+			var p = enComp.player.comps[i];
+			if (p.nickname == gameSession.nickname) {
+				var cmd = this.createCommand ();
 
+				socket.emit('playerCommand', {
+					command: cmd
+				});
+			}
 		}
 	};
 
