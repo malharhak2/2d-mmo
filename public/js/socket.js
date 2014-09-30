@@ -34,8 +34,12 @@ define (['socket.io'], function (io) {
 		this.socket.emit('register', {
 			nickname : nickname
 		});
+		var self = this;
 		this.socket.on('registered', function (msg) {
+			self.token = msg.token;
+			self.nickname = msg.nickname;
 			console.log("registered");
+			console.log(self.token, self.nickname);
 			callback(msg.token, msg.nickname);
 		});
 	};

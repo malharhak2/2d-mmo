@@ -1,5 +1,5 @@
-define (["Mouse", "buttons", "time", "gameSession", "socket"], 
-function (Mouse, buttons, time, gameSession, socket) {
+define (["inputs/buttons", "inputs/Button", "time", "gameSession", "socket", "inputs/Command"], 
+function (buttons, Button, time, gameSession, socket, Command) {
 
 	var Inputs = function () {
 		this.buttons = {};
@@ -10,32 +10,48 @@ function (Mouse, buttons, time, gameSession, socket) {
 		this.commands = [];
 	};
 
-	Inputs.prototype.createCommand = function () {
-		var command = {
-			buttons : this.buttons,
-			time : time.localTime,
-			seq: ++this.inputSeq
-		};
-		this.commands.push(command);
+	Inputs.prototype.createCommand = function (player) {
+
+		player.inputSeq++;
+		var buttons = {};
+		for (var i in this.buttons) {
+			buttons[i] = this.buttons[i].export();
+		}
+		var command = new Command (
+			buttons,
+			time.localTime,
+			player.inputSeq
+		);
+		//console.log(player.inputSeq);
+		player.inputs.push(command);
 		return command;
 	};
 
 	Inputs.prototype.reset = function () {
 	};
 
-	Inputs.prototype.update = function () {
+	Inputs.prototype.update = function (enComp, entities) {
 		for (var i in enComp.player.comps) {
 			var p = enComp.player.comps[i];
 			if (p.nickname == gameSession.nickname) {
-				var cmd = this.createCommand ();
-
+				var cmd = this.createCommand (p);
 				socket.emit('playerCommand', {
-					command: cmd
+					command : cmd
 				});
+				//createTimeout(cmd, socket)();
 			}
 		}
 	};
 
+	var createTimeout = function (cmd, socket) {
+		return function () {
+			setTimeout (function () {
+				socket.emit('playerCommand', {
+					command : cmd
+				});
+			}, 50);
+		};
+	};
 	Inputs.prototype.postUpdate = function () {
 		for (var i in this.buttons) {
 			this.buttons[i].postUpdate();

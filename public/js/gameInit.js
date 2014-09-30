@@ -12,7 +12,7 @@ define(['socket', 'jquery', 'entities/enComp', "inputs/inputs", "gameSession"],
 		} else {
 			signup(cb);
 		}
-		inputs.init($('#game'));
+		inputs.init($(window));
 	};
 
 	function getEntities (callback) {

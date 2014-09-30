@@ -57,6 +57,14 @@ define(["entities/entities", "components/Renderer", "components/Player", "compon
 		// TODO : Detacher le component avant de l'effacer
 	};
 
+	enComp.receiveEntity = function (d) {
+		var entity = entities.loadEntity (d.position, d.id);
+		for (var j in d.components) {
+			var comp = enComp.loadComponent(j, d.components[j]);
+			enComp.attachComponent(comp, entity);
+		}
+	};
+	
 	enComp.receiveEntities = function (entitiesList) {
 		for (var i = 0; i < entitiesList.length; i++) {
 			var d = entitiesList[i];
@@ -78,13 +86,10 @@ define(["entities/entities", "components/Renderer", "components/Player", "compon
 				components : {}
 			};
 			for (var j in e.components) {
-				console.log(j);
 				val.components[j] = this[j].comps[e.components[j]];
 			}
 			list.push(val);
 		}
-		console.log("Extract list");
-		console.log(list);
 		return list;
 	};
 

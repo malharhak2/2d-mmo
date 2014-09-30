@@ -42,8 +42,10 @@ var db = require('../db/db.js');
 		    	});
 		    });
 		    socket.on('playerCommand', function (msg) {
-		    	var client = clientsManager.clients[msg.token];
-		    	client.inputs.push (msg.command);
+		    	if (clientsManager.clients[msg.token] !== undefined) {
+			    	var client = clientsManager.clients[msg.token];
+			    	client.inputs.push (msg.command);
+		    	}
 		    });
 		    
 		    for (var i = 0; i < self.ons.length; i++) {

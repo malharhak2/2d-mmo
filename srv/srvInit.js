@@ -50,11 +50,6 @@ requirejs(['entities/enComp', 'entities/entities'],
 		enComp.attachComponent(rigidbody, entity);
 		clientsManager.clients[token].player = player;
 	}
+
+	require('./core/srvLoop.js')();
 });
-
-var physicsLoop = require('./physicsLoop.js');
-function createLoop () {
-	setInterval(timeLoop, 4);
-	setInterval(physicsLoop, 45);
-}
-

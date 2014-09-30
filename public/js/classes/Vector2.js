@@ -1,4 +1,6 @@
 define ([], function () {
+	Number.prototype.fixed = function(n) { n = n || 3; return parseFloat(this.toFixed(n)); };
+
 	var Vector2 = function (x, y) {
 		this.x = x;
 		this.y = y;
@@ -10,8 +12,8 @@ define ([], function () {
 	
 	Vector2.add = function (v1, v2) {
 		return {
-			x : v1.x + v2.x,
-			y : v1.y + v2.y
+			x : (v1.x + v2.x).fixed(3),
+			y : (v1.y + v2.y).fixed(3)
 		};
 	};
 	Vector2.prototype.add = function (v2) {
@@ -29,8 +31,8 @@ define ([], function () {
 	};
 	Vector2.scale = function (v1, scl) {
 		return {
-			x : v1.x * scl,
-			y : v1.y * scl
+			x : (v1.x * scl).fixed(3),
+			y : (v1.y * scl).fixed(3)
 		};
 	};
 
@@ -41,17 +43,27 @@ define ([], function () {
 		);
 	};
 
-	Vector2.length = function (v) {
-		return Math.sqrt(v.x * v.x + v.y * v.y);
+	Vector2.create = function (v) {
+		return {
+			x : v.x,
+			y :  v.y
+		};
+	};
+	Vector2.norm = function (v) {
+		return Math.sqrt(v.x * v.x + v.y * v.y).fixed(3);
 	};
 	Vector2.prototype.length = function () {
 		return Math.sqrt(this.x * this.x + this.y * this.y);
 	};
 	Vector2.normalize = function (v) {
-		var l = Vector2.length(v);
+		var l = Vector2.norm(v);
+		if (l === 0) return {
+			x : 0,
+			y : 0
+		};
 		return {
-			x: v.x / l,
-			y: v.y / l
+			x: (v.x / l).fixed(3),
+			y: (v.y / l).fixed(3)
 		};
 	};
 	
