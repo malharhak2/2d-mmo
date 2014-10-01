@@ -1,4 +1,4 @@
-define ([], function () {
+define (["utils/utils"], function (utils) {
 	Number.prototype.fixed = function(n) { n = n || 3; return parseFloat(this.toFixed(n)); };
 
 	var Vector2 = function (x, y) {
@@ -41,6 +41,13 @@ define ([], function () {
 			this.x * scl,
 			this.y * scl
 		);
+	};
+
+	Vector2.lerp = function (v1, v2, t) {
+		return {
+			x : utils.lerp(v1.x, v2.x, t),
+			y : utils.lerp(v1.y, v2.y, t)
+		};
 	};
 
 	Vector2.create = function (v) {

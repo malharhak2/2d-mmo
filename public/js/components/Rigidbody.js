@@ -9,5 +9,7 @@ define([], function () {
 		this.prevSpeed = this.speed;
 	};
 
+	Rigidbody.netLerp = ["position", "speed"];
+	
 	return Rigidbody;
 });

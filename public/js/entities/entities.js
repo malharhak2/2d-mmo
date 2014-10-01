@@ -11,10 +11,12 @@ define(["entities/Entity"], function (Entity) {
 		this.idCounter++;
 		return this.list[id];
 	};
-	entities.loadEntity = function (position, id) {
-		this.list[id] = new Entity(id, position);
+	entities.loadEntity = function (data) {
+		var ent = new Entity(data.id, data.position);
+		this.list[data.id] = ent;
+		ent.components = data.components;
 		this.idCounter++;
-		return this.list[id];
+		return this.list[data.id];
 	};
 	entities.deleteEntity = function (id) {
 		delete this.list[id];

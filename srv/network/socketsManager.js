@@ -41,12 +41,7 @@ var db = require('../db/db.js');
 		    		nickname : client.nickname
 		    	});
 		    });
-		    socket.on('playerCommand', function (msg) {
-		    	if (clientsManager.clients[msg.token] !== undefined) {
-			    	var client = clientsManager.clients[msg.token];
-			    	client.inputs.push (msg.command);
-		    	}
-		    });
+
 		    
 		    for (var i = 0; i < self.ons.length; i++) {
 		    	var o = self.ons[i];

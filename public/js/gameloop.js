@@ -1,9 +1,9 @@
 define (["animFrame", "systems/systems", "entities/enComp", "entities/entities", 
 	"physics/physics", "time", "inputs/inputs", "socket", "config", "gameSession",
-	"inputs/playerControls", "classes/Vector2"], 
+	"inputs/playerControls", "classes/Vector2", "utils/utils"], 
 	function (animFrame, systems, enComp, entities, 
 		physics, time, inputs, socket, config, gameSession,
-		playerControls, Vector2) {
+		playerControls, Vector2, utils) {
 	var launch = function () {
 		timeLoop();
 		loop();
@@ -28,6 +28,8 @@ define (["animFrame", "systems/systems", "entities/enComp", "entities/entities",
 	var oldestTick = 0;
 	var serverUpdate = function (msg) {
 		time.serverTime = msg.time;
+		time.clientTime = time.serverTime - config.lagOffset / 1000;
+		time.lastUpdate = time.localTime;
 		if (config.brute_force) {
 			for (var i = 0; i < msg.entities.length; i++) {
 				var e = msg.entities[i];
@@ -47,12 +49,11 @@ define (["animFrame", "systems/systems", "entities/enComp", "entities/entities",
 			}
 			oldestTick = serverUpdates[0].time;
 			processCorrection();
-			processInterpolation ();
 		}
 	};
 
 	var processInterpolation = function () {
-		var currentTime = time.localTime;
+		var currentTime = time.clientTime;
 		var count = serverUpdates.length - 1;
 		var target = null, previous = null;
 
@@ -68,8 +69,8 @@ define (["animFrame", "systems/systems", "entities/enComp", "entities/entities",
 		}
 
 		if (!target) {
-			target = this.server_updates[0];
-			previous = this.server_updates[0];
+			//target = serverUpdates[0];
+			//previous = serverUpdates[0];
 		}
 
 		if (target && previous) {
@@ -77,33 +78,85 @@ define (["animFrame", "systems/systems", "entities/enComp", "entities/entities",
 
 			var diff = targetTime - currentTime;
 			var maxDifference = (target.time - previous.time).fixed(3);
+			var timePoint = (diff / maxDifference).fixed(3);
 
+			if (isNaN(timePoint)) timePoint = 0;
+			if (timePoint === -Infinity) timePoint = 0;
+			if (timePoint === Infinity) timePoint = 0;
+			var t = target.entities;
+			var p = previous.entities
+			var lastServerData = serverUpdates[serverUpdates.length - 1].entities;
+
+			for (var j in p.entities) {
+				if (typeof entities.list[j] === "undefined") {
+					enComp.receiveEntity(t, j)
+				}
+				var e = entities.list[j];
+				if (j == gameSession.player.id) continue; 
+
+				var nextE = t.entities[j];
+				var prevE = p.entities[j];
+
+				var newPos = Vector2.lerp(prevE.position, nextE.position, timePoint);
+				if (config.interLerping) {
+					e.position = Vector2.lerp(e.position, newPos, time.deltaTime * config.interLerp);
+				} else {
+					e.position = Vector2.create(newPos);
+				}
+				for (var c in e.components) {
+					if (enComp.components[c].netLerp !== undefined) {
+						var netLerp = enComp.components[c].netLerp;
+						var id = nextE.components[c];
+						var nextC = t.components[c][id];
+						var prevC = p.components[c][id];
+						var currC = enComp[c].comps[id];
+						for (var l = 0; l < netLerp.length; l++) {
+							var v = netLerp[l];
+							if (typeof currC[v] === "object") {
+								if (config.interLerping) {
+									var nP = Vector2.lerp(prevC[v], nextC[v], timePoint);
+									currC[v] = Vector2.lerp(currC[v], nP, time.deltaTime * config.interLerp);
+
+								} else {
+									currC[v] = Vector2.lerp(prevC[v], nextC[v], timePoint);
+								}
+							} else {
+								if (config.interLerping) {
+									var nP = utils.lerp(prevC[v], nextC[v], timePoint);
+									currC[v] = utils.lerp(currC[v], nP, time.deltaTime * config.interLerp);
+								} else {
+									currC[v] = utils.lerp(prevC[v], nextC[v], timePoint);
+								}
+							}
+						}
+					}
+				}
+			}
 			// TODO: INTERPOLATION
 		}
 	};
 	var processCorrection = function () {
 		if (!serverUpdates.length) return;
 
-		var lastData = serverUpdates[serverUpdates.length - 1];
-		var p, sp;
+		var lastData = serverUpdates[serverUpdates.length - 1].entities;
+		var p, sp, sp_component;
 		for (var c in enComp.player.comps) {
 			if (enComp.player.comps[c].nickname == gameSession.nickname) {
 				p = enComp.player.comps[c];
 				break;
 			}
 		}
-		for (var e = 0; e < lastData.entities.length; e++) {
-			var entity = lastData.entities[e];
-			if (entity.components.player !== undefined) {
-				if (entity.components.player.nickname == gameSession.nickname) {
-					sp = entity;
-					break;
-				}
+		for (var j in lastData.components.player) {
+			if (lastData.components.player[j].nickname == gameSession.nickname) {
+				sp_component =  lastData.components.player[j];
+				sp = lastData.entities[sp_component.entity];
+				break;
 			}
 		}
+
 		if (sp !== undefined) {
 			var index = -1;
-			var lastServerInput = sp.components.player.lastInputSeq;
+			var lastServerInput = sp_component.lastInputSeq;
 			for (var i = 0; i < p.inputs.length; i++) {
 				if (p.inputs[i].seq == lastServerInput) {
 					index = i;
@@ -159,6 +212,7 @@ define (["animFrame", "systems/systems", "entities/enComp", "entities/entities",
 	};
 
 	var update = function () {
+		processInterpolation ();
 		var player, entity;
 		for (var i in enComp.player.comps) {
 			if (enComp.player.comps[i].nickname === gameSession.nickname) {

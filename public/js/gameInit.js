@@ -19,8 +19,16 @@ define(['socket', 'jquery', 'entities/enComp', "inputs/inputs", "gameSession"],
 		socket.emit('getEntities');
 		socket.on('entitiesList', function (msg) {
 			enComp.receiveEntities (msg.entitiesList);
+			findPlayer();
 			callback();
 		});
+	}
+	function findPlayer () {
+		for (var i in enComp.player.comps) {
+			if (enComp.player.comps[i].nickname === gameSession.nickname) {
+				gameSession.player = entities.list[enComp.player.comps[i].entity];
+			}
+		}
 	}
 
 	function signup (callback) {
@@ -30,6 +38,7 @@ define(['socket', 'jquery', 'entities/enComp', "inputs/inputs", "gameSession"],
 				localStorage.setItem('token', token);
 				localStorage.setItem('nickname', nickname);
 				gameSession.init(token, nickname);
+				console.log(token, nickname);
 				showGame();
 				callback();
 			});

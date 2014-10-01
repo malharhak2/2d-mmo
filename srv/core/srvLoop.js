@@ -42,7 +42,7 @@ function launch () {
 					entities : ent,
 					time : serverTime
 				});
-			}, 500);
+			}, 45);
 		};
 
 		var updatePhysics = function () {

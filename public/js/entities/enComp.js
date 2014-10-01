@@ -1,5 +1,5 @@
-define(["entities/entities", "components/Renderer", "components/Player", "components/Rigidbody"], 
-	function (entities, Renderer, Player, Rigidbody) {
+define(["entities/entities", "components/Renderer", "components/Player", "components/Rigidbody", "config"], 
+	function (entities, Renderer, Player, Rigidbody, config) {
 
 	var enComp = {
 		components: {}
@@ -23,7 +23,15 @@ define(["entities/entities", "components/Renderer", "components/Player", "compon
 	enComp.loadComponent = function (name, values) {
 		var component = new this.components[name](values);
 		this[name].loadComponent(component, values.id);
+		if (values.entity) {
+			component.entity = values.entity;
+		}
 		return component;
+	};
+	enComp.loadComponents = function (name, components) {
+		for (var i in components) {
+			this.loadComponent(name, components[i]);
+		}
 	};
 
 	enComp.destroyComponent = function (name, id) {
@@ -57,16 +65,23 @@ define(["entities/entities", "components/Renderer", "components/Player", "compon
 		// TODO : Detacher le component avant de l'effacer
 	};
 
-	enComp.receiveEntity = function (d) {
-		var entity = entities.loadEntity (d.position, d.id);
-		for (var j in d.components) {
-			var comp = enComp.loadComponent(j, d.components[j]);
-			enComp.attachComponent(comp, entity);
+	enComp.receiveEntity = function (list, e) {
+		var entity = entities.loadEntity(list.entities[e]);
+		for (var i in list.components) {
+			this.loadComponent(i, list.components[i][entity.components[i]]);
 		}
 	};
 	
 	enComp.receiveEntities = function (entitiesList) {
-		for (var i = 0; i < entitiesList.length; i++) {
+		for (var i in entitiesList.entities) {
+			entities.loadEntity(entitiesList.entities[i]);
+		}
+		for (var c in entitiesList.components) {
+			this.loadComponents(c, entitiesList.components[c]);
+		}
+
+		// Old version
+		/*for (var i = 0; i < entitiesList.length; i++) {
 			var d = entitiesList[i];
 			var entity = entities.loadEntity (d.position, d.id);
 			for (var j in d.components) {
@@ -74,10 +89,22 @@ define(["entities/entities", "components/Renderer", "components/Player", "compon
 				enComp.attachComponent(comp, entity);
 			}
 		}
-		console.log(entities.list, this);
+		console.log(entities.list, this);*/
 	};
 	enComp.extractList = function () {
-		var list = [];
+		var res = {
+			components : {},
+			entities : {}
+		};
+		for (var i in enComp.components) {
+			res.components[i] = enComp[i].comps;
+		}
+		res.entities = entities.list;
+		return res;
+
+		// Old version
+
+		/*var list = [];
 		for (var i in entities.list) {
 			var e = entities.list[i];
 			var val = {
@@ -90,7 +117,7 @@ define(["entities/entities", "components/Renderer", "components/Player", "compon
 			}
 			list.push(val);
 		}
-		return list;
+		return list;*/
 	};
 
 
@@ -98,5 +125,9 @@ define(["entities/entities", "components/Renderer", "components/Player", "compon
 	enComp.registerComponent('player', Player);
 	enComp.registerComponent('rigidbody', Rigidbody);
 
+	if ('undefined' !== typeof(window) && config.debug) {
+		window.entities = entities;
+		window.enComp = enComp;
+	}
 	return enComp;
 });
